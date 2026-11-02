@@ -69,7 +69,7 @@ function init() {
 
   /* ---------- uniforms compartilhados ---------- */
   const U = { uTime: { value: 0 }, uWind: { value: reduceMotion ? 0.3 : 1 } };
-  const BU = { uBuild: { value: 0 }, uSolid: { value: 0 }, uHi: { value: new THREE.Vector2(0, 0) }, uScan: { value: -100 }, uLit: { value: 0 } };
+  const BU = { uBuild: { value: 0 }, uSolid: { value: 0 }, uHi: { value: new THREE.Vector2(0, -10) }, uScan: { value: -100 }, uLit: { value: 0 } };
 
   /* ---------- helpers ---------- */
   function paint(g, hex, vary) {
@@ -100,7 +100,7 @@ function init() {
   }
   const stdMat = (extra) => new THREE.MeshStandardMaterial(Object.assign({ vertexColors: true, roughness: 0.75, metalness: 0.05 }, extra));
 
-  // corta a geometria acima de uSolid e adiciona brilho no andar escolhido e na varredura
+  // corta a geometria acima de uSolid e adiciona o brilho da varredura de luz
   function clipStd(mat) {
     mat.onBeforeCompile = (sh) => {
       Object.assign(sh.uniforms, { uSolid: BU.uSolid, uHi: BU.uHi, uScan: BU.uScan, uTime: U.uTime });
@@ -482,9 +482,9 @@ function init() {
   mkLabel(FLOORS + " andares · " + (BODY_H).toFixed(1).replace(".", ",") + " m", V(BW / 2 + 2, TOP + 3, BD / 2), "dim--sm");
   function setExploreFromPin(to) { setExplore(false); const t = document.querySelector(to); if (t) t.scrollIntoView({ behavior: "smooth" }); }
   [
-    { label: "🏢 Escolha seu andar", pos: V(0, TOP + 1.5, 0), to: "#andar" },
-    { label: "💰 Financiar", pos: V(0, 2, LOTD / 2 + 2.5), to: "#financiar" },
-    { label: "🏗️ Venda o seu", pos: V(CX, MH + 6, CZ), to: "#vender" }
+    { label: "🏢 Imóveis em destaque", pos: V(0, TOP + 1.5, 0), to: "#destaques" },
+    { label: "💬 Fale com a gente", pos: V(0, 2, LOTD / 2 + 2.5), to: "#contato" },
+    { label: "🏗️ Quanto vale o seu?", pos: V(CX, MH + 6, CZ), to: "#vender" }
   ].forEach((d) => {
     if (!pinBox) return;
     const a = document.createElement("a"); a.className = "pin"; a.href = d.to; a.textContent = d.label;
@@ -525,23 +525,18 @@ function init() {
   const keys = [
     { p: V(12, 40, 80), t: V(-20, 10, 0) },    // 0 hero: visão de drone, prédio à direita
     { p: V(-40, 12, 42), t: V(-7, 16, 0) },    // 1 vitrine: fachada vista de baixo
-    { p: V(-48, 15, 26), t: V(6, 14, 0) },     // 2 escolha seu andar (acompanha o andar)
-    { p: V(36, 54, 40), t: V(-5, 4, 4) },      // 3 financiar: planta do lote vista de cima
-    { p: V(40, 32, -40), t: V(4, 20, -4) },    // 4 vender: guindaste e topo
-    { p: V(0, 32, 78), t: V(-30, 10, 0) }      // 5 contato: vista geral, tudo aceso
+    { p: V(40, 32, -40), t: V(4, 20, -4) },    // 2 cotação: guindaste e topo (card à direita)
+    { p: V(0, 32, 78), t: V(-30, 10, 0) }      // 3 contato: vista geral, tudo aceso
   ];
   // tela vertical (celular): texto em cima/cards embaixo, prédio centralizado
   const keysM = [
     { p: V(8, 34, 95), t: V(-2, 27, 0) },
     { p: V(-40, 14, 46), t: V(0, 0, 0) },
-    { p: V(-50, 16, 30), t: V(0, 2, 0) },
-    { p: V(40, 60, 50), t: V(0, -6, 0) },
     { p: V(46, 34, -46), t: V(0, 6, -4) },
     { p: V(0, 34, 90), t: V(0, 0, 0) }
   ];
   const KS = () => (camera.aspect < 0.8 ? keysM : keys);
   const sections = Array.prototype.slice.call(document.querySelectorAll("[data-cam]"));
-  const andarIdx = sections.findIndex((s) => s.id === "andar");
   const camPos = keys[0].p.clone(), lookT = keys[0].t.clone(), want = new Vector3(), wantT = new Vector3(), tmpP = new Vector3(), tmpT = new Vector3();
   const controls = new OrbitControls(camera, canvas);
   Object.assign(controls, { enableDamping: true, dampingFactor: 0.07, minDistance: 14, maxDistance: 130, maxPolarAngle: Math.PI * 0.49, enabled: false, autoRotateSpeed: 0.5, rotateSpeed: 0.6, zoomSpeed: 0.8 });
@@ -558,10 +553,6 @@ function init() {
   const mouse = { x: 0, y: 0, sx: 0, sy: 0 };
   addEventListener("pointermove", (e) => { mouse.x = (e.clientX / innerWidth) * 2 - 1; mouse.y = (e.clientY / innerHeight) * 2 - 1; }, { passive: true });
 
-  let hiFloor = Math.ceil(FLOORS / 2), hiSmooth = hiFloor, hiOn = 0;
-  addEventListener("floorchange", (e) => { hiFloor = MathUtils.clamp(e.detail | 0, 1, FLOORS); shadowDirty = 2; });
-  window.__floors = FLOORS;
-
   function scrollPose() {
     if (!sections.length) return [0, 0, 0];
     const tops = sections.map((s) => s.getBoundingClientRect().top);
@@ -570,12 +561,7 @@ function init() {
     const f = i === next || span <= 0 ? 0 : MathUtils.clamp(-tops[i] / span, 0, 1);
     return [i, smooth(0, 1, f), next];
   }
-  function keyAt(idx) {
-    const ks = KS(), k = ks[Math.min(idx, ks.length - 1)];
-    if (idx !== andarIdx) return k;
-    const fo = (hiSmooth - 0.5) * FH - 15; // acompanha o andar escolhido
-    return { p: tmpP.copy(k.p).setY(k.p.y + fo * 0.7), t: tmpT.copy(k.t).setY(k.t.y + fo) };
-  }
+  function keyAt(idx) { const ks = KS(); return ks[Math.min(idx, ks.length - 1)]; }
 
   /* ---------- redimensionamento e qualidade adaptativa ---------- */
   function resize() {
@@ -617,17 +603,12 @@ function init() {
     if (Math.abs(bp - bpT) < 0.002) bp = bpT;
     applyBuild(t);
 
-    // destaque do andar escolhido (só na seção "andar")
     const [i, f, nx] = scrollPose(), active = f > 0.5 ? nx : i;
     if (html.dataset.sec !== String(active)) html.dataset.sec = String(active);
-    hiOn += ((active === andarIdx && build.p >= 1 ? 1 : 0) - hiOn) * (1 - Math.exp(-dt * 4));
-    hiSmooth += (hiFloor - hiSmooth) * (1 - Math.exp(-dt * 4));
-    BU.uHi.value.set((hiSmooth - 1) * FH + 0.3, (hiSmooth - 1) * FH + FH * hiOn + (hiOn < 0.01 ? -10 : 0));
-    if (hiOn < 0.01) BU.uHi.value.set(0, -10);
 
     // câmera
     if (!explore) {
-      const a = keyAt(i), ap = a.p.clone(), at = a.t.clone(), b = keyAt(nx);
+      const a = keyAt(i), ap = a.p, at = a.t, b = keyAt(nx);
       want.lerpVectors(ap, b.p, f); wantT.lerpVectors(at, b.t, f);
       const k = 1 - Math.exp(-dt * (reduceMotion ? 8 : 3.2));
       camPos.lerp(want, k); lookT.lerp(wantT, k);

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Sua Corretora — Seu sonho começa aqui</title>
-  <meta name="description" content="Veja seu apartamento ganhar vida em 3D: acompanhe a obra, escolha o andar, simule o financiamento e fale com a gente.">
+  <meta name="description" content="Veja seu apartamento ganhar vida em 3D, descubra quanto vale o seu imóvel e fale direto com um corretor pelo WhatsApp.">
   <meta name="theme-color" content="#050b1a">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='26' fill='%23061a3a'/%3E%3Cpath d='M28 78V30h32v48M60 46h14v32' fill='none' stroke='%2335b6ff' stroke-width='6'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,9 +24,7 @@
     <a class="logo" href="#inicio" aria-label="Início"><span class="logo__mark" aria-hidden="true"></span><span data-s="nome">Sua Corretora</span></a>
     <nav class="nav" id="nav" aria-label="Principal">
       <a href="#destaques">Imóveis</a>
-      <a href="#andar">Andares</a>
-      <a href="#financiar">Financiar</a>
-      <a href="#vender">Vender</a>
+      <a href="#vender">Cotação</a>
       <a href="#contato">Contato</a>
     </nav>
     <a class="btn btn--wa btn--sm" data-wa="Olá! Vim pelo site e gostaria de atendimento." href="#">WhatsApp</a>
@@ -45,9 +43,9 @@
       <div class="hero">
         <p class="pill"><span class="dot"></span> <span data-s="slogan">Seu sonho começa aqui</span></p>
         <h1>Veja o seu apartamento <em>ganhar vida</em> em 3D.</h1>
-        <p class="lead">Acompanhe a obra andar por andar, escolha o seu antes de todo mundo e fale com quem entende de imóvel.</p>
+        <p class="lead">Veja a obra nascer andar por andar e fale agora, pelo WhatsApp, com quem entende de imóvel.</p>
         <div class="actions">
-          <a class="btn btn--sun" href="#andar">Escolher meu andar</a>
+          <a class="btn btn--wa" data-wa="Olá! Vim pelo site e quero falar com um corretor." href="#">Falar com um corretor</a>
           <button class="btn btn--glass" data-explore>🧭 Explorar em 3D</button>
         </div>
         <ul class="stats" id="stats" aria-label="Números da corretora"></ul>
@@ -69,47 +67,8 @@
       <div class="rail" id="rail" tabindex="0" aria-label="Lista de imóveis"></div>
     </section>
 
-    <!-- 2. ESCOLHA SEU ANDAR -->
-    <section class="sec sec--right" id="andar" data-cam="2">
-      <div class="card">
-        <p class="eyebrow" id="empNome">Residencial</p>
-        <h2>Escolha o seu <em>andar</em></h2>
-        <p class="muted">Arraste o controle e veja o andar brilhar no prédio ao lado.</p>
-        <div class="floor">
-          <button class="floor__b" id="fDown" aria-label="Andar abaixo">−</button>
-          <div class="floor__n"><b id="fNum">4</b><span>º andar</span></div>
-          <button class="floor__b" id="fUp" aria-label="Andar acima">+</button>
-        </div>
-        <input type="range" id="floorRange" min="1" max="8" step="1" value="4" aria-label="Andar">
-        <ul class="facts">
-          <li><span>Apartamentos</span><b id="fAp"></b></li>
-          <li><span>Metragem</span><b id="fMet"></b></li>
-          <li><span>A partir de</span><b id="fPreco"></b></li>
-          <li><span>Entrega</span><b id="fEntrega"></b></li>
-        </ul>
-        <a class="btn btn--sun" id="fWa" data-wa="" href="#">Quero esse andar</a>
-      </div>
-    </section>
-
-    <!-- 3. FINANCIAR -->
-    <section class="sec sec--left" id="financiar" data-cam="3">
-      <div class="card">
-        <p class="eyebrow">Simulador</p>
-        <h2>Quanto fica a <em>parcela?</em></h2>
-        <form class="form" id="simForm" onsubmit="return false">
-          <label>Valor do imóvel <output id="oValor"></output><input type="range" id="sValor" min="100000" max="3000000" step="10000" value="500000"></label>
-          <label>Entrada <output id="oEntrada"></output><input type="range" id="sEntrada" min="10" max="80" step="5" value="20"></label>
-          <label>Prazo <output id="oPrazo"></output><input type="range" id="sPrazo" min="5" max="35" step="1" value="30"></label>
-          <label>Juros <output id="oTaxa"></output><input type="range" id="sTaxa" min="6" max="16" step="0.1" value="10.5"></label>
-          <div class="result"><small>Parcela estimada (tabela Price)</small><strong id="rParcela">—</strong><span id="rResumo"></span></div>
-          <a class="btn btn--sun" id="simWa" data-wa="" href="#">Quero uma simulação oficial</a>
-          <p class="fine">Valores ilustrativos. A taxa final depende da análise do banco.</p>
-        </form>
-      </div>
-    </section>
-
-    <!-- 4. VENDER -->
-    <section class="sec sec--right" id="vender" data-cam="4">
+    <!-- 2. VENDER (cotação) -->
+    <section class="sec sec--right" id="vender" data-cam="2">
       <div class="card">
         <p class="eyebrow">Vai vender?</p>
         <h2>Descubra quanto <em>vale o seu imóvel</em></h2>
@@ -126,8 +85,8 @@
       </div>
     </section>
 
-    <!-- 5. CONTATO -->
-    <section class="sec sec--center" id="contato" data-cam="5">
+    <!-- 3. CONTATO -->
+    <section class="sec sec--center" id="contato" data-cam="3">
       <div class="card card--wide">
         <h2>Vamos <em>conversar?</em></h2>
         <p class="muted">Conte o que você procura e um corretor responde rapidinho.</p>

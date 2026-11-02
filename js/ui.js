@@ -66,47 +66,6 @@
   });
   render();
 
-  /* Escolha seu andar (sincroniza com o prédio 3D) */
-  var E = S.empreendimento || {}, N = Math.max(4, Math.min(14, Math.round(E.andares || 8)));
-  var fr = $("#floorRange"), fNum = $("#fNum");
-  fr.max = N; fr.value = Math.ceil(N / 2);
-  $("#empNome").textContent = E.nome || "Empreendimento";
-  function floorUpdate() {
-    var n = +fr.value, preco = (E.precoBase || 0) + (n - 1) * (E.incrementoAndar || 0);
-    fNum.textContent = n;
-    $("#fAp").textContent = (E.apPorAndar || 4) + " por andar";
-    $("#fMet").textContent = E.metragem || "";
-    $("#fPreco").textContent = preco ? brl.format(preco) : "Consulte";
-    $("#fEntrega").textContent = E.entrega || "—";
-    var w = $("#fWa");
-    w.href = wa("Olá! Tenho interesse no " + n + "º andar do " + (E.nome || "empreendimento") + (preco ? " (a partir de " + brl.format(preco) + ")" : "") + ". Podemos conversar?");
-    w.target = "_blank"; w.rel = "noopener";
-    window.dispatchEvent(new CustomEvent("floorchange", { detail: n }));
-  }
-  fr.addEventListener("input", floorUpdate);
-  $("#fUp").addEventListener("click", function () { fr.value = Math.min(N, +fr.value + 1); floorUpdate(); });
-  $("#fDown").addEventListener("click", function () { fr.value = Math.max(1, +fr.value - 1); floorUpdate(); });
-  floorUpdate();
-
-  /* Simulador (Tabela Price) */
-  var sV = $("#sValor"), sE = $("#sEntrada"), sP = $("#sPrazo"), sT = $("#sTaxa");
-  function sim() {
-    var valor = +sV.value, ent = +sE.value, anos = +sP.value, taxa = +sT.value;
-    var fin = valor * (1 - ent / 100), n = anos * 12, i = Math.pow(1 + taxa / 100, 1 / 12) - 1;
-    var parcela = fin * i / (1 - Math.pow(1 + i, -n));
-    $("#oValor").textContent = brl.format(valor);
-    $("#oEntrada").textContent = ent + "% (" + brl.format(valor * ent / 100) + ")";
-    $("#oPrazo").textContent = anos + " anos";
-    $("#oTaxa").textContent = taxa.toFixed(1).replace(".", ",") + "% a.a.";
-    $("#rParcela").textContent = brl.format(parcela) + " /mês";
-    $("#rResumo").textContent = "Financiado: " + brl.format(fin) + " · Total ≈ " + brl.format(parcela * n);
-    var w = $("#simWa");
-    w.href = wa("Olá! Fiz uma simulação: imóvel de " + brl.format(valor) + ", entrada de " + ent + "%, " + anos + " anos. Parcela estimada: " + brl.format(parcela) + ". Quero uma simulação oficial.");
-    w.target = "_blank"; w.rel = "noopener";
-  }
-  [sV, sE, sP, sT].forEach(function (s) { s.addEventListener("input", sim); });
-  sim();
-
   /* Avaliação → WhatsApp */
   $("#avalForm").addEventListener("submit", function (e) {
     e.preventDefault();

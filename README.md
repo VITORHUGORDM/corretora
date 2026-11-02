@@ -7,10 +7,10 @@ construído à noite, em visão de drone, com contornos de neon estilo planta (l
 - **Construção animada:** o lote é traçado em neon, a estrutura "holográfica" sobe andar por andar, o prédio
   se preenche, as janelas acendem e o guindaste trabalha. Botão **↻ Reconstruir** repete a animação.
 - **Modo Planta:** alterna o prédio para o holograma de neon (wireframe).
-- **Escolha seu andar:** o andar selecionado brilha no prédio 3D, a câmera acompanha e o preço/WhatsApp mudam.
+
 - **Câmera guiada pelo scroll** + **Explorar em 3D** com controles de órbita (arrastar, zoom, pinça) e pontos clicáveis.
 - Detalhes vivos: caminhões na estrada, drones, poeira de luz, pulsos no chão, varredura de luz no prédio.
-- Vitrine de imóveis, simulador de financiamento (Price) e avaliação gratuita, todos com atalho para o WhatsApp.
+- Vitrine de imóveis e cotação gratuita ("quanto vale o seu imóvel"), todos com atalho para o WhatsApp.
 - **Desempenho:** instanciamento, sombras atualizadas a cada 2 quadros, MSAA + brilho (bloom), e resolução adaptativa
   (reduz sozinha, e desliga o brilho se necessário, caso caia de 60fps). Adicione `?fps` na URL para ver o contador.
 - Sem WebGL o site continua funcionando (fundo em degradê). Respeita `prefers-reduced-motion`.
@@ -20,8 +20,8 @@ Abra `index.html` (ou hospede a pasta em qualquer lugar: GitHub Pages, Netlify, 
 O arquivo `js/scene.js` já está compilado, então não precisa instalar nada para publicar.
 
 ## Personalizar
-Edite **apenas `js/config.js`**: nome, CRECI, WhatsApp, contatos, **dados do empreendimento** (andares, preço,
-metragem, entrega), imóveis, depoimentos e números. Tudo marcado como `EXEMPLO` é demonstração.
+Edite **apenas `js/config.js`**: nome, CRECI, WhatsApp, contatos, **dados do empreendimento** (andares,
+entrega), imóveis, depoimentos e números. Tudo marcado como `EXEMPLO` é demonstração.
 Para fotos reais nos cards, coloque em `img/` e preencha `img: "img/casa1.jpg"`.
 
 ## Alterar o cenário 3D

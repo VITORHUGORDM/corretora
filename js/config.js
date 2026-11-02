@@ -19,12 +19,8 @@ window.SITE = {
   // Empreendimento mostrado no cenário 3D (EXEMPLO — troque pelos dados reais)
   empreendimento: {
     nome: "Residencial Exemplo",
-    andares: 8,                              // de 4 a 14
-    apPorAndar: 4,
-    metragem: "2 e 3 quartos · 62 a 78 m²",
-    precoBase: 380000,                       // preço do 1º andar
-    incrementoAndar: 6000,                   // quanto sobe por andar
-    entrega: "Dez/2028"
+    andares: 8,          // de 4 a 14: define a altura do prédio 3D
+    entrega: "Dez/2028"  // aparece na barra "Obra" do topo
   },
 
   // Números que aparecem na faixa de destaque (use os reais)
