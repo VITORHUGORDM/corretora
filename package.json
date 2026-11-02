@@ -1,0 +1,14 @@
+{
+  "name": "corretora-landing",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Landing page 3D da corretora (Three.js)",
+  "scripts": {
+    "build": "esbuild src/scene.js --bundle --minify --format=iife --target=es2019 --outfile=js/scene.js",
+    "dev": "esbuild src/scene.js --bundle --format=iife --outfile=js/scene.js --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "three": "^0.170.0"
+  }
+}
