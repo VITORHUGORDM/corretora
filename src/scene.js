@@ -483,8 +483,7 @@ function init() {
   function setExploreFromPin(to) { setExplore(false); const t = document.querySelector(to); if (t) t.scrollIntoView({ behavior: "smooth" }); }
   [
     { label: "🖼️ Galeria de fotos", pos: V(0, TOP + 1.5, 0), to: "#galeria" },
-    { label: "💬 Fale com a gente", pos: V(0, 2, LOTD / 2 + 2.5), to: "#contato" },
-    { label: "🏗️ Quanto vale o seu?", pos: V(CX, MH + 6, CZ), to: "#vender" }
+    { label: "💬 Fale com a gente", pos: V(0, 2, LOTD / 2 + 2.5), to: "#contato" }
   ].forEach((d) => {
     if (!pinBox) return;
     const a = document.createElement("a"); a.className = "pin"; a.href = d.to; a.textContent = d.label;
@@ -526,15 +525,13 @@ function init() {
     { p: V(12, 40, 80), t: V(-20, 10, 0) },    // 0 hero: visão de drone, prédio à direita
     { p: V(-40, 12, 42), t: V(-7, 16, 0) },    // 1 galeria: fachada vista de baixo
     { p: V(34, 24, 56), t: V(-8, 18, 0) },     // 2 depoimentos: visão em 3/4 (cards embaixo)
-    { p: V(40, 32, -40), t: V(4, 20, -4) },    // 3 cotação: guindaste e topo (card à direita)
-    { p: V(0, 32, 78), t: V(-30, 10, 0) }      // 4 contato: vista geral, tudo aceso
+    { p: V(0, 32, 78), t: V(-30, 10, 0) }      // 3 contato: vista geral, tudo aceso
   ];
   // tela vertical (celular): texto em cima/cards embaixo, prédio centralizado
   const keysM = [
     { p: V(8, 34, 95), t: V(-2, 27, 0) },
     { p: V(-40, 14, 46), t: V(0, 0, 0) },
     { p: V(34, 30, 62), t: V(0, 2, 0) },
-    { p: V(46, 34, -46), t: V(0, 6, -4) },
     { p: V(0, 34, 90), t: V(0, 0, 0) }
   ];
   const KS = () => (camera.aspect < 0.8 ? keysM : keys);

@@ -60,12 +60,4 @@
       el("footer", {}, [el("span", { class: "av", text: ini }), el("div", {}, [el("b", { text: d.nome }), el("small", { text: d.detalhe })])])
     ]));
   });
-
-  /* Avaliação → WhatsApp */
-  $("#avalForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var d = new FormData(e.target);
-    var msg = "Olá! Me chamo " + d.get("nome") + " e quero avaliar meu imóvel.\nTipo: " + d.get("tipo") + "\nBairro: " + d.get("bairro") + (d.get("area") ? "\nÁrea: " + d.get("area") + " m²" : "");
-    window.open(wa(msg), "_blank", "noopener");
-  });
 })();

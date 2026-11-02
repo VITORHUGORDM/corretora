@@ -103,14 +103,6 @@ h1{font-size:clamp(2.4rem,6.4vw,4.8rem);margin-bottom:20px}
 .fine{font-size:.76rem;color:var(--muted);margin-top:12px}
 .info{list-style:none;padding:0;display:grid;gap:4px;font-size:.9rem;color:var(--muted)}
 
-.form{display:grid;gap:14px;margin-top:10px}
-.form label{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:.84rem}
-.form input,.form select{font:500 1rem "Inter",sans-serif;color:inherit;background:rgba(53,182,255,.08);border:1px solid var(--line);border-radius:14px;padding:12px 14px;width:100%}
-.form select option{color:#06101f}
-.form input::placeholder{color:#6f86ad}
-input[type=range]{accent-color:var(--neon);padding:0;height:30px;cursor:pointer;display:block;width:100%;background:none;border:0}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-
 /* Galeria em trilho */
 .head{max-width:620px;text-shadow:0 2px 20px rgba(0,0,0,.5)}
 .head .eyebrow{color:var(--cyan)}

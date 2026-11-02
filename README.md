@@ -10,7 +10,7 @@ construído à noite, em visão de drone, com contornos de neon estilo planta (l
 
 - **Câmera guiada pelo scroll** + **Explorar em 3D** com controles de órbita (arrastar, zoom, pinça) e pontos clicáveis.
 - Detalhes vivos: caminhões na estrada, drones, poeira de luz, pulsos no chão, varredura de luz no prédio.
-- **Galeria de fotos de referência**, **depoimentos** de quem comprou apartamento e **cotação gratuita** ("quanto vale o seu imóvel"), com atalho para o WhatsApp.
+- **Galeria de fotos de referência**, **depoimentos** de quem comprou apartamento, todos levando ao WhatsApp.
 - **Desempenho:** instanciamento, sombras atualizadas a cada 2 quadros, MSAA + brilho (bloom), e resolução adaptativa
   (reduz sozinha, e desliga o brilho se necessário, caso caia de 60fps). Adicione `?fps` na URL para ver o contador.
 - Sem WebGL o site continua funcionando (fundo em degradê). Respeita `prefers-reduced-motion`.
