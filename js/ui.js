@@ -47,7 +47,7 @@
   function render() {
     rail.textContent = "";
     S.imoveis.filter(function (i) { return !filtro || i.finalidade === filtro; }).sort(function (a, b) { return (b.destaque - a.destaque) || (a.id - b.id); }).forEach(function (i) {
-      var c = i.cores || ["#4f9a3d", "#ffb84d"];
+      var c = i.cores || ["#0b3a7a", "#35b6ff"];
       var price = el("p", { class: "price", text: brl.format(i.preco) });
       if (i.finalidade === "Aluguel") price.appendChild(el("small", { text: " /mês" }));
       var meta = [];
@@ -65,6 +65,28 @@
     c.addEventListener("click", function () { filtro = c.dataset.f; $$(".chip").forEach(function (x) { x.classList.toggle("is-on", x === c); }); render(); });
   });
   render();
+
+  /* Escolha seu andar (sincroniza com o prédio 3D) */
+  var E = S.empreendimento || {}, N = Math.max(4, Math.min(14, Math.round(E.andares || 8)));
+  var fr = $("#floorRange"), fNum = $("#fNum");
+  fr.max = N; fr.value = Math.ceil(N / 2);
+  $("#empNome").textContent = E.nome || "Empreendimento";
+  function floorUpdate() {
+    var n = +fr.value, preco = (E.precoBase || 0) + (n - 1) * (E.incrementoAndar || 0);
+    fNum.textContent = n;
+    $("#fAp").textContent = (E.apPorAndar || 4) + " por andar";
+    $("#fMet").textContent = E.metragem || "";
+    $("#fPreco").textContent = preco ? brl.format(preco) : "Consulte";
+    $("#fEntrega").textContent = E.entrega || "—";
+    var w = $("#fWa");
+    w.href = wa("Olá! Tenho interesse no " + n + "º andar do " + (E.nome || "empreendimento") + (preco ? " (a partir de " + brl.format(preco) + ")" : "") + ". Podemos conversar?");
+    w.target = "_blank"; w.rel = "noopener";
+    window.dispatchEvent(new CustomEvent("floorchange", { detail: n }));
+  }
+  fr.addEventListener("input", floorUpdate);
+  $("#fUp").addEventListener("click", function () { fr.value = Math.min(N, +fr.value + 1); floorUpdate(); });
+  $("#fDown").addEventListener("click", function () { fr.value = Math.max(1, +fr.value - 1); floorUpdate(); });
+  floorUpdate();
 
   /* Simulador (Tabela Price) */
   var sV = $("#sValor"), sE = $("#sEntrada"), sP = $("#sPrazo"), sT = $("#sTaxa");
