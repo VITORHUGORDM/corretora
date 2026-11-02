@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sua Corretora — Seu sonho começa aqui</title>
+  <meta name="description" content="Compre, venda ou alugue seu imóvel com quem entende. Busca inteligente, simulador de financiamento e avaliação gratuita.">
+  <meta name="theme-color" content="#5b21b6">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%237c3aed'/%3E%3Cpath d='M20 52 50 26l30 26v24H20z' fill='%23ffd23f'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip" href="#imoveis">Pular para os imóveis</a>
+
+  <header class="header" id="topo">
+    <div class="wrap header__in">
+      <a href="#topo" class="logo" aria-label="Início"><span class="logo__mark" aria-hidden="true"></span><span data-s="nome">Sua Corretora</span></a>
+      <nav class="nav" id="nav" aria-label="Principal">
+        <a href="#imoveis">Imóveis</a>
+        <a href="#servicos">Serviços</a>
+        <a href="#simulador">Financiamento</a>
+        <a href="#avaliacao">Venda o seu</a>
+        <a href="#contato">Contato</a>
+      </nav>
+      <a class="btn btn--sm btn--wa" data-wa="Olá! Vim pelo site e gostaria de atendimento." href="#">WhatsApp</a>
+      <button class="burger" id="burger" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="blob blob--1" aria-hidden="true"></div>
+      <div class="blob blob--2" aria-hidden="true"></div>
+      <div class="blob blob--3" aria-hidden="true"></div>
+      <div class="wrap hero__in">
+        <p class="pill reveal">✨ <span data-s="slogan">Seu sonho começa aqui</span></p>
+        <h1 class="reveal">Encontre o lugar <span class="grad">que combina com a sua vida.</span></h1>
+        <p class="lead reveal">Compre, venda ou alugue com atendimento humano, tecnologia e transparência em cada passo.</p>
+
+        <form class="search reveal" id="searchForm" aria-label="Buscar imóveis">
+          <label>Quero
+            <select id="fFinalidade"><option value="">Todos</option><option>Venda</option><option>Aluguel</option></select>
+          </label>
+          <label>Tipo
+            <select id="fTipo"><option value="">Todos</option></select>
+          </label>
+          <label>Bairro
+            <select id="fBairro"><option value="">Todos</option></select>
+          </label>
+          <label>Quartos
+            <select id="fQuartos"><option value="0">Qualquer</option><option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option></select>
+          </label>
+          <button class="btn btn--hot" type="submit">Buscar</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- FAIXA -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>🏡 Casas</span><span>🏢 Apartamentos</span><span>🌳 Terrenos</span><span>🏬 Comerciais</span><span>🔑 Aluguel</span><span>💰 Financiamento</span>
+        <span>🏡 Casas</span><span>🏢 Apartamentos</span><span>🌳 Terrenos</span><span>🏬 Comerciais</span><span>🔑 Aluguel</span><span>💰 Financiamento</span>
+      </div>
+    </div>
+
+    <!-- NÚMEROS -->
+    <section class="stats">
+      <div class="wrap stats__grid" id="stats"></div>
+    </section>
+
+    <!-- IMÓVEIS -->
+    <section class="sec" id="imoveis">
+      <div class="wrap">
+        <div class="sec__head reveal">
+          <p class="eyebrow">Vitrine</p>
+          <h2>Imóveis em <span class="grad">destaque</span></h2>
+          <p class="muted" id="resultInfo" aria-live="polite"></p>
+        </div>
+        <div class="chips reveal" id="chips" role="group" aria-label="Filtro rápido">
+          <button class="chip is-on" data-quick="">Todos</button>
+          <button class="chip" data-quick="Venda">Comprar</button>
+          <button class="chip" data-quick="Aluguel">Alugar</button>
+          <button class="chip" data-quick="fav">❤ Favoritos</button>
+          <select id="fOrdem" aria-label="Ordenar">
+            <option value="rel">Mais relevantes</option><option value="menor">Menor preço</option><option value="maior">Maior preço</option><option value="area">Maior área</option>
+          </select>
+        </div>
+        <div class="grid" id="grid"></div>
+        <p class="empty" id="empty" hidden>Nenhum imóvel com esses filtros 😕 <button class="btn btn--sm" id="clear">Limpar filtros</button></p>
+      </div>
+    </section>
+
+    <!-- SERVIÇOS -->
+    <section class="sec sec--dark" id="servicos">
+      <div class="wrap">
+        <div class="sec__head reveal">
+          <p class="eyebrow">Como ajudamos</p>
+          <h2>Tudo para o seu imóvel, <span class="grad">em um só lugar</span></h2>
+        </div>
+        <div class="cards">
+          <article class="card reveal" style="--c:#ff4d6d"><span class="ico">🏡</span><h3>Comprar</h3><p>Curadoria de imóveis, visitas agendadas e acompanhamento até a escritura.</p></article>
+          <article class="card reveal" style="--c:#ffd23f"><span class="ico">💼</span><h3>Vender</h3><p>Avaliação de mercado gratuita, fotos profissionais e divulgação ampla.</p></article>
+          <article class="card reveal" style="--c:#00d4b4"><span class="ico">🔑</span><h3>Alugar</h3><p>Locatários verificados, contrato seguro e gestão sem dor de cabeça.</p></article>
+          <article class="card reveal" style="--c:#8b5cf6"><span class="ico">📈</span><h3>Financiar</h3><p>Simulação, análise de crédito e apoio na documentação com o banco.</p></article>
+        </div>
+
+        <ol class="steps">
+          <li class="reveal"><b>1</b><div><h4>Conte o que procura</h4><p>Pelo site ou WhatsApp, em 2 minutos.</p></div></li>
+          <li class="reveal"><b>2</b><div><h4>Receba opções sob medida</h4><p>Selecionamos só o que faz sentido para você.</p></div></li>
+          <li class="reveal"><b>3</b><div><h4>Visite e negocie</h4><p>Agendamos tudo e negociamos com segurança.</p></div></li>
+          <li class="reveal"><b>4</b><div><h4>Receba as chaves 🎉</h4><p>Cuidamos da burocracia até o final.</p></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- SIMULADOR -->
+    <section class="sec" id="simulador">
+      <div class="wrap two">
+        <div class="reveal">
+          <p class="eyebrow">Simulador</p>
+          <h2>Quanto fica a <span class="grad">parcela?</span></h2>
+          <p class="muted">Faça uma estimativa rápida de financiamento (tabela Price). Valores meramente ilustrativos — a taxa final depende da análise do banco.</p>
+        </div>
+        <form class="panel reveal" id="simForm" onsubmit="return false">
+          <label>Valor do imóvel: <output id="oValor"></output>
+            <input type="range" id="sValor" min="100000" max="3000000" step="10000" value="500000"></label>
+          <label>Entrada: <output id="oEntrada"></output>
+            <input type="range" id="sEntrada" min="10" max="80" step="5" value="20"></label>
+          <label>Prazo: <output id="oPrazo"></output>
+            <input type="range" id="sPrazo" min="5" max="35" step="1" value="30"></label>
+          <label>Taxa de juros (a.a.): <output id="oTaxa"></output>
+            <input type="range" id="sTaxa" min="6" max="16" step="0.1" value="10.5"></label>
+          <div class="result">
+            <small>Parcela estimada</small>
+            <strong id="rParcela">—</strong>
+            <span id="rResumo"></span>
+          </div>
+          <a class="btn btn--hot" id="simWa" data-wa="" href="#">Quero uma simulação oficial</a>
+        </form>
+      </div>
+    </section>
+
+    <!-- AVALIAÇÃO -->
+    <section class="sec sec--grad" id="avaliacao">
+      <div class="wrap two">
+        <div class="reveal">
+          <p class="eyebrow eyebrow--w">Vai vender?</p>
+          <h2>Descubra quanto vale <span class="mark">o seu imóvel</span></h2>
+          <p>Avaliação gratuita feita por quem conhece a região. Preencha e continuamos pelo WhatsApp.</p>
+        </div>
+        <form class="panel panel--light reveal" id="avalForm">
+          <label>Seu nome<input required name="nome" autocomplete="name" placeholder="Maria Silva"></label>
+          <div class="row">
+            <label>Tipo<select name="tipo"><option>Casa</option><option>Apartamento</option><option>Terreno</option><option>Comercial</option></select></label>
+            <label>Área (m²)<input name="area" type="number" min="1" inputmode="numeric" placeholder="120"></label>
+          </div>
+          <label>Bairro<input required name="bairro" placeholder="Ex.: Centro"></label>
+          <label>Quartos<input name="quartos" type="number" min="0" inputmode="numeric" placeholder="3"></label>
+          <button class="btn btn--hot" type="submit">Pedir avaliação grátis</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- DEPOIMENTOS -->
+    <section class="sec">
+      <div class="wrap">
+        <div class="sec__head reveal"><p class="eyebrow">Quem já realizou</p><h2>Histórias que <span class="grad">nos orgulham</span></h2></div>
+        <div class="quotes" id="quotes"></div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="sec sec--soft">
+      <div class="wrap narrow">
+        <div class="sec__head reveal"><p class="eyebrow">Dúvidas</p><h2>Perguntas <span class="grad">frequentes</span></h2></div>
+        <div id="faq"></div>
+      </div>
+    </section>
+
+    <!-- CONTATO -->
+    <section class="sec" id="contato">
+      <div class="wrap cta reveal">
+        <h2>Vamos conversar?</h2>
+        <p>Fale agora com um corretor e dê o primeiro passo.</p>
+        <div class="cta__btns">
+          <a class="btn btn--wa" data-wa="Olá! Quero falar com um corretor." href="#">Chamar no WhatsApp</a>
+          <a class="btn btn--ghost" data-mail href="#">Enviar e-mail</a>
+        </div>
+        <ul class="info">
+          <li>📍 <span data-s="endereco"></span> · <span data-s="cidade"></span></li>
+          <li>🕘 <span data-s="horario"></span></li>
+          <li>📞 <span data-s="telefoneExibicao"></span></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer__in">
+      <span>© <span id="ano"></span> <b data-s="nome"></b> · <span data-s="creci"></span></span>
+      <a data-insta href="#" target="_blank" rel="noopener">Instagram</a>
+    </div>
+  </footer>
+
+  <a class="fab" data-wa="Olá! Vim pelo site e gostaria de atendimento." href="#" aria-label="Falar no WhatsApp">💬</a>
+
+  <dialog id="modal" aria-labelledby="mTitulo">
+    <form method="dialog"><button class="modal__x" aria-label="Fechar">✕</button></form>
+    <div class="modal__art" id="mArt"></div>
+    <div class="modal__body">
+      <p class="tag" id="mTag"></p>
+      <h3 id="mTitulo"></h3>
+      <p class="price" id="mPreco"></p>
+      <ul class="feat" id="mFeat"></ul>
+      <p id="mDesc" class="muted"></p>
+      <a class="btn btn--wa" id="mWa" data-wa="" href="#">Tenho interesse</a>
+    </div>
+  </dialog>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
