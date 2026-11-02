@@ -23,7 +23,8 @@
   <header class="top">
     <a class="logo" href="#inicio" aria-label="Início"><span class="logo__mark" aria-hidden="true"></span><span data-s="nome">Sua Corretora</span></a>
     <nav class="nav" id="nav" aria-label="Principal">
-      <a href="#destaques">Imóveis</a>
+      <a href="#galeria">Galeria</a>
+      <a href="#historias">Histórias</a>
       <a href="#vender">Cotação</a>
       <a href="#contato">Contato</a>
     </nav>
@@ -50,25 +51,29 @@
         </div>
         <ul class="stats" id="stats" aria-label="Números da corretora"></ul>
       </div>
-      <a class="scroll" href="#destaques" aria-label="Rolar para baixo"><span></span></a>
+      <a class="scroll" href="#galeria" aria-label="Rolar para baixo"><span></span></a>
     </section>
 
-    <!-- 1. DESTAQUES -->
-    <section class="sec sec--rail" id="destaques" data-cam="1">
+    <!-- 1. GALERIA -->
+    <section class="sec sec--rail" id="galeria" data-cam="1">
       <div class="head">
-        <p class="eyebrow">Vitrine</p>
-        <h2>Imóveis que <em>combinam com você</em></h2>
-        <div class="chips" id="chips" role="group" aria-label="Filtrar imóveis">
-          <button class="chip is-on" data-f="">Todos</button>
-          <button class="chip" data-f="Venda">Comprar</button>
-          <button class="chip" data-f="Aluguel">Alugar</button>
-        </div>
+        <p class="eyebrow">Referências</p>
+        <h2>Ambientes que <em>viram lar</em></h2>
       </div>
-      <div class="rail" id="rail" tabindex="0" aria-label="Lista de imóveis"></div>
+      <div class="rail" id="rail" tabindex="0" aria-label="Galeria de fotos"></div>
     </section>
 
-    <!-- 2. VENDER (cotação) -->
-    <section class="sec sec--right" id="vender" data-cam="2">
+    <!-- 2. DEPOIMENTOS -->
+    <section class="sec sec--rail" id="historias" data-cam="2">
+      <div class="head">
+        <p class="eyebrow">Quem já realizou</p>
+        <h2>Histórias de quem <em>conquistou o apê</em></h2>
+      </div>
+      <div class="quotes" id="quotes"></div>
+    </section>
+
+    <!-- 3. VENDER (cotação) -->
+    <section class="sec sec--right" id="vender" data-cam="3">
       <div class="card">
         <p class="eyebrow">Vai vender?</p>
         <h2>Descubra quanto <em>vale o seu imóvel</em></h2>
@@ -85,8 +90,8 @@
       </div>
     </section>
 
-    <!-- 3. CONTATO -->
-    <section class="sec sec--center" id="contato" data-cam="3">
+    <!-- 4. CONTATO -->
+    <section class="sec sec--center" id="contato" data-cam="4">
       <div class="card card--wide">
         <h2>Vamos <em>conversar?</em></h2>
         <p class="muted">Conte o que você procura e um corretor responde rapidinho.</p>

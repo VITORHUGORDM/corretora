@@ -10,7 +10,7 @@ construído à noite, em visão de drone, com contornos de neon estilo planta (l
 
 - **Câmera guiada pelo scroll** + **Explorar em 3D** com controles de órbita (arrastar, zoom, pinça) e pontos clicáveis.
 - Detalhes vivos: caminhões na estrada, drones, poeira de luz, pulsos no chão, varredura de luz no prédio.
-- Vitrine de imóveis e cotação gratuita ("quanto vale o seu imóvel"), todos com atalho para o WhatsApp.
+- **Galeria de fotos de referência**, **depoimentos** de quem comprou apartamento e **cotação gratuita** ("quanto vale o seu imóvel"), com atalho para o WhatsApp.
 - **Desempenho:** instanciamento, sombras atualizadas a cada 2 quadros, MSAA + brilho (bloom), e resolução adaptativa
   (reduz sozinha, e desliga o brilho se necessário, caso caia de 60fps). Adicione `?fps` na URL para ver o contador.
 - Sem WebGL o site continua funcionando (fundo em degradê). Respeita `prefers-reduced-motion`.
@@ -21,8 +21,8 @@ O arquivo `js/scene.js` já está compilado, então não precisa instalar nada p
 
 ## Personalizar
 Edite **apenas `js/config.js`**: nome, CRECI, WhatsApp, contatos, **dados do empreendimento** (andares,
-entrega), imóveis, depoimentos e números. Tudo marcado como `EXEMPLO` é demonstração.
-Para fotos reais nos cards, coloque em `img/` e preencha `img: "img/casa1.jpg"`.
+entrega), galeria de fotos, depoimentos e números. Tudo marcado como `EXEMPLO` é demonstração.
+Para usar fotos reais na galeria, coloque os arquivos em `img/` e preencha `img: "img/sala.jpg"` em cada item de `galeria`.
 
 ## Alterar o cenário 3D
 O código-fonte está em `src/scene.js`. Depois de editar:

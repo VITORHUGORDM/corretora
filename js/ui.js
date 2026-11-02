@@ -41,30 +41,25 @@
     })(performance.now());
   });
 
-  /* Vitrine */
-  var icons = { Casa: "🏡", Apartamento: "🏢", Terreno: "🌳", Comercial: "🏬" };
-  var rail = $("#rail"), filtro = "";
-  function render() {
-    rail.textContent = "";
-    S.imoveis.filter(function (i) { return !filtro || i.finalidade === filtro; }).sort(function (a, b) { return (b.destaque - a.destaque) || (a.id - b.id); }).forEach(function (i) {
-      var c = i.cores || ["#0b3a7a", "#35b6ff"];
-      var price = el("p", { class: "price", text: brl.format(i.preco) });
-      if (i.finalidade === "Aluguel") price.appendChild(el("small", { text: " /mês" }));
-      var meta = [];
-      if (i.quartos) meta.push("🛏 " + i.quartos);
-      if (i.banheiros) meta.push("🚿 " + i.banheiros);
-      if (i.vagas) meta.push("🚗 " + i.vagas);
-      meta.push("📐 " + i.area + " m²");
-      var art = el("div", { class: "imv__art", style: "background:linear-gradient(135deg," + c[0] + "," + c[1] + ")" }, [el("span", { class: "badge", text: i.finalidade + (i.destaque ? " · 🔥" : "") }), icons[i.tipo] || "🏠"]);
-      if (i.img) { art.style.background = "url('" + encodeURI(i.img) + "') center/cover"; art.lastChild.textContent = ""; }
-      var btn = el("a", { class: "btn btn--wa btn--sm", href: wa("Olá! Tenho interesse no imóvel: " + i.titulo + " (" + i.bairro + ") — " + brl.format(i.preco) + ". Podemos conversar?"), target: "_blank", rel: "noopener", text: "Quero visitar" });
-      rail.appendChild(el("article", { class: "imv" }, [art, el("div", { class: "imv__body" }, [el("small", { text: i.tipo + " · " + i.bairro }), el("h3", { text: i.titulo }), price, el("div", { class: "meta" }, meta.map(function (m) { return el("span", { text: m }); })), btn])]));
-    });
-  }
-  $$(".chip").forEach(function (c) {
-    c.addEventListener("click", function () { filtro = c.dataset.f; $$(".chip").forEach(function (x) { x.classList.toggle("is-on", x === c); }); render(); });
+  /* Galeria de referência */
+  var rail = $("#rail");
+  (S.galeria || []).forEach(function (f) {
+    var c = f.cores || ["#0b3a7a", "#35b6ff"], art;
+    if (f.img) art = el("img", { src: f.img, alt: f.legenda || "Foto de referência", loading: "lazy" });
+    else art = el("div", { class: "ph__ph", style: "background:linear-gradient(135deg," + c[0] + "," + c[1] + ")" }, [el("span", { text: f.icone || "🏠" }), el("small", { text: "Sua foto aqui" })]);
+    rail.appendChild(el("figure", { class: "ph" }, [el("div", { class: "ph__art" }, [art]), el("figcaption", { text: f.legenda || "" })]));
   });
-  render();
+
+  /* Depoimentos */
+  var quotes = $("#quotes");
+  (S.depoimentos || []).forEach(function (d) {
+    var ini = (d.nome || "?").split(" ").map(function (p) { return p[0]; }).slice(0, 2).join("").toUpperCase();
+    quotes.appendChild(el("blockquote", { class: "quote" }, [
+      el("div", { class: "stars", "aria-label": "5 estrelas", text: "★★★★★" }),
+      el("p", { text: d.texto }),
+      el("footer", {}, [el("span", { class: "av", text: ini }), el("div", {}, [el("b", { text: d.nome }), el("small", { text: d.detalhe })])])
+    ]));
+  });
 
   /* Avaliação → WhatsApp */
   $("#avalForm").addEventListener("submit", function (e) {
