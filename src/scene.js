@@ -47,23 +47,34 @@ function init() {
 
   /* ---------- renderer, pós-processamento (brilho neon) ---------- */
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: "high-performance" });
-  const maxPR = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
-  let pr = maxPR;
-  renderer.setPixelRatio(pr);
+  /* Níveis de qualidade (0 = completo ... 4 = mínimo). Começa pelo nível adequado ao aparelho
+     e desce sozinho se a taxa de quadros cair. Use ?q=0..4 na URL para forçar um nível. */
+  const lowEnd = isMobile || (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
+  const forceQ = /[?&]q=([0-4])/.exec(location.search);
+  const LEVELS = [
+    { msaa: isMobile ? 2 : 4, bloom: true, shadow: true, every: 2, cap: 2 },
+    { msaa: 2, bloom: true, shadow: true, every: 3, cap: 1.5 },
+    { msaa: isMobile ? 2 : 0, bloom: true, shadow: true, every: 4, cap: 1.25 },
+    { msaa: 0, bloom: false, shadow: true, every: 6, cap: 1 },
+    { msaa: 0, bloom: false, shadow: false, every: 0, cap: 0.85 }
+  ];
+  let level = forceQ ? +forceQ[1] : lowEnd ? 1 : 0, prScale = 1, pr = 1;
+  const PIXEL_BUDGET = isMobile ? 1.1e6 : 2.2e6; // nunca renderiza mais que isso (≈ 1080p)
+  renderer.setPixelRatio(1);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = level === 0 ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
   renderer.shadowMap.autoUpdate = false;
 
   const scene = new THREE.Scene();
   scene.fog = new THREE.Fog(0x050b1a, 70, 280);
   const camera = new THREE.PerspectiveCamera(42, 1, 0.5, 700);
 
-  const rt = new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, samples: isMobile ? 2 : 4 });
+  const rt = new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, samples: LEVELS[level].msaa });
   const composer = new EffectComposer(renderer, rt);
   composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.5, 0.45, 0.95);
+  const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.5, 0.45, 0.95); bloom.enabled = LEVELS[level].bloom;
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
 
@@ -148,12 +159,10 @@ function init() {
   const hemi = new THREE.HemisphereLight(0x5f86c9, 0x0b1220, 1.35); scene.add(hemi);
   const moon = new THREE.DirectionalLight(0xa9c6ff, 2.1);
   moon.position.set(-38, 62, -34); moon.target.position.set(0, 0, 0); scene.add(moon, moon.target);
-  const sm = isMobile ? 1024 : 2048;
-  moon.castShadow = true; moon.shadow.mapSize.set(sm, sm);
+  const sm = isMobile || level > 0 ? 1024 : 2048;
+  moon.castShadow = LEVELS[level].shadow; moon.shadow.mapSize.set(sm, sm);
   Object.assign(moon.shadow.camera, { left: -46, right: 46, top: 46, bottom: -46, near: 1, far: 190 });
   moon.shadow.bias = -0.0004; moon.shadow.normalBias = 0.06; moon.shadow.radius = 3;
-  const glowA = new THREE.PointLight(0x2f9bff, 0, 46, 2); glowA.position.set(0, 3, 17); scene.add(glowA);
-  const glowB = new THREE.PointLight(0x35c8ff, 0, 40, 2); glowB.position.set(0, 4, -17); scene.add(glowB);
 
   /* ---------- céu e estrelas ---------- */
   const skyMat = new THREE.ShaderMaterial({
@@ -176,7 +185,7 @@ function init() {
   });
   const sky = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 14), skyMat); sky.frustumCulled = false; sky.renderOrder = -2; scene.add(sky);
   {
-    const n = 650, a = new Float32Array(n * 3), s = new Float32Array(n);
+    const n = 420, a = new Float32Array(n * 3), s = new Float32Array(n);
     for (let i = 0; i < n; i++) { const u = rng(), t = rng() * 6.283, y = 0.06 + u * 0.94, r = Math.sqrt(1 - y * y); a[i * 3] = r * Math.cos(t); a[i * 3 + 1] = y; a[i * 3 + 2] = r * Math.sin(t); s[i] = rng(); }
     const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(a, 3)); g.setAttribute("seed", new THREE.BufferAttribute(s, 1));
     const m = new THREE.ShaderMaterial({
@@ -190,7 +199,7 @@ function init() {
 
   /* ---------- terreno escuro, lote e estrada ---------- */
   {
-    const SIZE = 300, SEG = isMobile ? 110 : 150, cell = SIZE / SEG;
+    const SIZE = 300, SEG = isMobile ? 90 : 120, cell = SIZE / SEG;
     let g = new THREE.PlaneGeometry(SIZE, SIZE, SEG, SEG); g.rotateX(-Math.PI / 2);
     const p = g.attributes.position;
     for (let i = 0; i < p.count; i++) { const x = p.getX(i) + (rng() - 0.5) * cell * 0.5, z = p.getZ(i) + (rng() - 0.5) * cell * 0.5; p.setXYZ(i, x, height(x, z), z); }
@@ -294,6 +303,7 @@ function init() {
 
   /* ---------- o prédio ---------- */
   const building = new THREE.Group(); scene.add(building);
+  let holoMesh = null;
   {
     const parts = [], wins = [];
     const SLAB = "#f2f6ff", WALL = "#cfd9ea", COL = "#aab8d1", GLASS = "#8fc4ff";
@@ -361,7 +371,7 @@ function init() {
           #include <colorspace_fragment>
         }`
     }));
-    holo.frustumCulled = false; holo.renderOrder = 4; building.add(holo);
+    holo.frustumCulled = false; holo.renderOrder = 4; building.add(holo); holoMesh = holo;
   }
 
   /* ---------- canteiro: contêineres, paletes ---------- */
@@ -411,7 +421,7 @@ function init() {
       parts.push(box(w, h, d, x, h / 2, z, "#25344b", 0.1), box(w + 0.6, 0.4, d + 0.6, x, h + 0.2, z, "#3a4d6a"));
       for (let i = 0; i < 3; i++) parts.push(box(1.4, 0.7, 0.1, x - w / 3 + i * (w / 3), h * 0.55, z + d / 2 + 0.05, "#7fb4ff"));
     });
-    const m = new THREE.Mesh(mergeGeometries(parts), stdMat({ roughness: 0.9 })); m.castShadow = m.receiveShadow = true; scene.add(m);
+    const m = new THREE.Mesh(mergeGeometries(parts), stdMat({ roughness: 0.9 })); m.receiveShadow = true; scene.add(m);
     // detalhes que brilham (bloom)
     const gl = [];
     [[-40, -10, 14, 10, 8], [42, -12, 16, 10, 9], [30, -44, 14, 14, 11], [-32, -44, 18, 10, 7]].forEach(([x, z, w, d, h]) => gl.push(box(w - 1, 0.15, 0.15, x, h + 0.5, z + d / 2, "#ffffff")));
@@ -432,7 +442,7 @@ function init() {
     const pine = mergeGeometries([paint(new THREE.CylinderGeometry(0.2, 0.3, 1.5, 6).translate(0, 0.75, 0), "#2b2118"), paint(new THREE.ConeGeometry(1.7, 2.3, 7).translate(0, 2.2, 0), "#14402a", 0.2), paint(new THREE.ConeGeometry(1.3, 2.1, 7).translate(0, 3.5, 0), "#195033", 0.2), paint(new THREE.ConeGeometry(0.9, 1.9, 7).translate(0, 4.7, 0), "#1e5e3b", 0.2)]);
     const round = mergeGeometries([paint(new THREE.CylinderGeometry(0.22, 0.32, 2.2, 6).translate(0, 1.1, 0), "#33261b"), paint(jitterGeo(new THREE.IcosahedronGeometry(1.7, 0), 0.4).translate(0, 3.2, 0), "#1c4a2a", 0.2), paint(jitterGeo(new THREE.IcosahedronGeometry(1.2, 0), 0.4).translate(0.9, 2.6, 0.4), "#23572f", 0.2)]);
     const spots = [];
-    for (let k = 0; k < 900 && spots.length < (isMobile ? 80 : 150); k++) {
+    for (let k = 0; k < 900 && spots.length < (isMobile ? 60 : 110); k++) {
       const a = rng() * 6.283, r = 22 + Math.pow(rng(), 0.8) * 110, x = Math.cos(a) * r, z = Math.sin(a) * r;
       if (keepClear(x, z) || spots.some((s) => Math.hypot(s.x - x, s.z - z) < 4)) continue;
       spots.push({ x, z, y: height(x, z), s: rr(0.9, 1.7), t: rng() < 0.6 });
@@ -441,7 +451,7 @@ function init() {
     [[true, pine], [false, round]].forEach(([isPine, geo]) => {
       const list = spots.filter((s) => s.t === isPine), im = new THREE.InstancedMesh(geo, mat, list.length);
       list.forEach((s, i) => { q.setFromEuler(new THREE.Euler(0, rng() * 6.28, 0)); m4.compose(new Vector3(s.x, s.y - 0.1, s.z), q, new Vector3(s.s, s.s * rr(0.9, 1.25), s.s)); im.setMatrixAt(i, m4); const v = rr(0.8, 1.2); im.setColorAt(i, c.setRGB(v, v, v)); });
-      im.castShadow = true; scene.add(im);
+      scene.add(im);
     });
   }
 
@@ -462,7 +472,7 @@ function init() {
   /* ---------- pulsos no chão, poeira, drones ---------- */
   const rings = [0, 1].map(() => { const m = new THREE.Mesh(new THREE.RingGeometry(0.985, 1, 128).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, color: new Color(0.25, 0.8, 2.2), fog: false })); m.position.y = 0.1; m.frustumCulled = false; scene.add(m); return m; });
   const dust = (() => {
-    const n = 280, a = new Float32Array(n * 3), s = new Float32Array(n);
+    const n = 160, a = new Float32Array(n * 3), s = new Float32Array(n);
     for (let i = 0; i < n; i++) { a.set([rr(-LOTW, LOTW), rr(0, 40), rr(-LOTD, LOTD)], i * 3); s[i] = rng(); }
     const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(a, 3)); g.setAttribute("seed", new THREE.BufferAttribute(s, 1));
     const m = new THREE.ShaderMaterial({
@@ -494,7 +504,7 @@ function init() {
   /* ---------- construção: linha do tempo ---------- */
   const build = { p: 0, playing: false, t0: 0, dur: reduceMotion ? 0.01 : 11 };
   let bp = 0, bpT = 0; // modo blueprint
-  const hud = { box: document.getElementById("hud"), p: document.getElementById("hudP"), bar: document.querySelector("#hudBar u"), t: document.getElementById("hudT") };
+  const hud = { last: -1, box: document.getElementById("hud"), p: document.getElementById("hudP"), bar: document.querySelector("#hudBar u"), t: document.getElementById("hudT") };
   function play() { build.playing = true; build.p = 0; build.t0 = clock.elapsedTime; shadowDirty = 4; }
   document.querySelectorAll("[data-replay]").forEach((b) => b.addEventListener("click", () => { if (explore) setExplore(false); play(); }));
   document.querySelectorAll("[data-blueprint]").forEach((b) => b.addEventListener("click", () => { bpT = bpT ? 0 : 1; b.classList.toggle("is-on", !!bpT); b.setAttribute("aria-pressed", !!bpT); shadowDirty = 4; }));
@@ -509,15 +519,16 @@ function init() {
     BU.uLit.value = smooth(0.9, 1.0, p) * 0.9 * (1 - bp);
     const done = p >= 1 && bp < 0.5;
     BU.uScan.value = done ? ((t * 0.1) % 1.5) * (H + 14) - 4 : -100;
-    glowA.intensity = glowB.intensity = 36 * smooth(0.2, 0.7, p);
     dust.material.uniforms.uOp.value = smooth(0.1, 0.5, p);
     const cs = smooth(0.04, 0.16, p); crane.visible = cs > 0.001; crane.scale.set(1, cs, 1);
     rings.forEach((r, i) => { const u = (t * 0.17 + i * 0.5) % 1, s = 6 + u * 50, a = p >= 1 ? 1 : 0; r.scale.set(s, 1, s); r.material.opacity = (1 - u) * (1 - u) * 0.85 * a; r.visible = a > 0; });
-    if (hud.box) {
-      hud.bar.style.width = Math.round(p * 100) + "%"; hud.p.textContent = Math.round(p * 100) + "%";
+    const pct = Math.round(p * 100), hk = p >= 1 ? 101 : pct;
+    if (hud.box && hk !== hud.last) {
+      hud.last = hk; hud.bar.style.width = pct + "%"; hud.p.textContent = pct + "%";
       hud.t.textContent = p >= 1 ? (E.entrega ? "Entrega " + E.entrega : "Obra concluída") : "Obra em andamento";
       hud.box.classList.toggle("is-done", p >= 1);
     }
+    if (holoMesh) holoMesh.visible = p < 1 || bp > 0.01;
   }
 
   /* ---------- câmera: jornada guiada pelo scroll + exploração ---------- */
@@ -552,32 +563,48 @@ function init() {
   const mouse = { x: 0, y: 0, sx: 0, sy: 0 };
   addEventListener("pointermove", (e) => { mouse.x = (e.clientX / innerWidth) * 2 - 1; mouse.y = (e.clientY / innerHeight) * 2 - 1; }, { passive: true });
 
+  // posições das seções em cache (evita forçar recálculo de layout a cada quadro)
+  let secTops = [];
+  const measure = () => { secTops = sections.map((s) => s.offsetTop); };
+  measure(); addEventListener("resize", measure); addEventListener("load", measure);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+  if (window.ResizeObserver) new ResizeObserver(measure).observe(document.body);
+  const pose = [0, 0, 0];
   function scrollPose() {
-    if (!sections.length) return [0, 0, 0];
-    const tops = sections.map((s) => s.getBoundingClientRect().top);
-    let i = 0; for (let k = 0; k < tops.length; k++) if (tops[k] <= 1) i = k;
-    const next = Math.min(i + 1, keys.length - 1), span = tops[i + 1] !== undefined ? tops[i + 1] - tops[i] : 0;
-    const f = i === next || span <= 0 ? 0 : MathUtils.clamp(-tops[i] / span, 0, 1);
-    return [i, smooth(0, 1, f), next];
+    const n = secTops.length; if (!n) return pose;
+    const sy = window.scrollY; let i = 0;
+    for (let k = 0; k < n; k++) if (secTops[k] - sy <= 1) i = k;
+    const next = Math.min(i + 1, keys.length - 1), span = i + 1 < n ? secTops[i + 1] - secTops[i] : 0;
+    const f = i === next || span <= 0 ? 0 : MathUtils.clamp((sy - secTops[i]) / span, 0, 1);
+    pose[0] = i; pose[1] = smooth(0, 1, f); pose[2] = next; return pose;
   }
   function keyAt(idx) { const ks = KS(); return ks[Math.min(idx, ks.length - 1)]; }
 
   /* ---------- redimensionamento e qualidade adaptativa ---------- */
+  let shadowDirty = 4;
   function resize() {
     const w = innerWidth, h = innerHeight;
+    pr = Math.max(0.5, Math.min(window.devicePixelRatio || 1, LEVELS[level].cap, Math.sqrt(PIXEL_BUDGET / (w * h))) * prScale);
     renderer.setPixelRatio(pr); renderer.setSize(w, h, false); composer.setPixelRatio(pr); composer.setSize(w, h);
     camera.aspect = w / h; camera.fov = w / h < 0.8 ? 64 : w / h < 1.2 ? 52 : 42; camera.updateProjectionMatrix();
     window.__starMat.uniforms.uPR.value = pr; dust.material.uniforms.uPR.value = pr * (h / 800);
   }
-  addEventListener("resize", resize); resize();
+  function applyLevel() {
+    const L = LEVELS[level];
+    [composer.renderTarget1, composer.renderTarget2].forEach((t) => { if (t.samples !== L.msaa) { t.samples = L.msaa; t.dispose(); } });
+    bloom.enabled = L.bloom; moon.castShadow = L.shadow; shadowDirty = 3; resize();
+  }
+  addEventListener("resize", resize); applyLevel();
+  // desce de nível sozinho quando o aparelho não aguenta (média de quadro > ~24ms)
   let accT = 0, accN = 0, warm = 0;
-  function adapt(dt) {
-    if (dt > 0.2 || ++warm < 100) return;
-    accT += dt; accN++;
-    if (accN >= 40) {
-      const avg = accT / accN;
-      if (avg > 0.0215) { if (pr > 0.7) { pr = Math.max(0.7, pr - 0.15); resize(); } else if (bloom.enabled) bloom.enabled = false; }
-      else if (avg < 0.0135 && pr < maxPR) { pr = Math.min(maxPR, pr + 0.1); resize(); }
+  function adapt(raw) {
+    if (forceQ || raw > 1.5 || ++warm < 24) return;
+    accT += Math.min(raw, 0.5); accN++;
+    if (accN >= 24) {
+      if (accT / accN > 0.024) {
+        if (level < 4) { level++; applyLevel(); } else if (prScale > 0.65) { prScale -= 0.1; resize(); }
+        warm = 12;
+      }
       accT = accN = 0;
     }
   }
@@ -586,12 +613,12 @@ function init() {
 
   /* ---------- loop ---------- */
   const clock = new THREE.Clock(), wp = new Vector3();
-  let frame = 0, shadowDirty = 4, ready = false, startAt = 0;
-  const yawBase = Math.atan2(0 - CX, 0 - CZ);
+  let frame = 0, ready = false, startAt = 0;
+  const yawBase = Math.atan2(0 - CX, 0 - CZ), UP = V(0, 1, 0);
 
   function tick() {
     requestAnimationFrame(tick);
-    const dt = Math.min(clock.getDelta(), 0.1), t = clock.elapsedTime;
+    const raw = clock.getDelta(), dt = Math.min(raw, 0.1), t = clock.elapsedTime;
     U.uTime.value = t; frame++;
 
     if (build.playing) {
@@ -613,7 +640,7 @@ function init() {
       camPos.lerp(want, k); lookT.lerp(wantT, k);
       mouse.sx += (mouse.x - mouse.sx) * 0.05; mouse.sy += (mouse.y - mouse.sy) * 0.05;
       const off = tmpP.copy(camPos).sub(lookT), yaw = reduceMotion ? 0 : Math.sin(t * 0.12) * 0.1;
-      off.applyAxisAngle(V(0, 1, 0), yaw); camera.position.copy(lookT).add(off); camera.lookAt(lookT);
+      off.applyAxisAngle(UP, yaw); camera.position.copy(lookT).add(off); camera.lookAt(lookT);
       if (!reduceMotion) { camera.translateX(mouse.sx * 1.2); camera.translateY(-mouse.sy * 0.7); camera.lookAt(lookT); }
     } else {
       if (!controls.autoRotate && performance.now() - idleSince > 7000) controls.autoRotate = !reduceMotion;
@@ -633,27 +660,40 @@ function init() {
     trucks.forEach((tr) => { tr.g.position.x += tr.dir * tr.sp * dt; if (tr.g.position.x > 70) tr.g.position.x = -70; if (tr.g.position.x < -70) tr.g.position.x = 70; tr.g.position.y = Math.sin(t * 9 + tr.sp) * 0.02; });
     drones.forEach((d) => { const a = t * d.sp + d.ph; d.m.position.set(Math.cos(a) * d.r, d.h + Math.sin(t * 0.8 + d.ph) * 1.5, Math.sin(a) * d.r); d.m.scale.setScalar(0.7 + 0.5 * (0.5 + 0.5 * Math.sin(t * 6 + d.ph))); d.m.visible = build.p > 0.6; });
 
-    if (shadowDirty > 0 || frame % 2 === 0) { renderer.shadowMap.needsUpdate = true; if (shadowDirty > 0) shadowDirty--; }
+    const Lv = LEVELS[level];
+    if (Lv.shadow && (shadowDirty > 0 || (Lv.every && frame % Lv.every === 0))) { renderer.shadowMap.needsUpdate = true; if (shadowDirty > 0) shadowDirty--; }
     composer.render();
 
     // rótulos HTML
+    // só escreve no DOM quando algo muda (evita trabalho de layout/pintura por quadro)
     const proj = (obj, vis, shown) => {
-      wp.copy(obj.pos).project(camera);
-      const ok = shown && wp.z < 1 && Math.abs(wp.x) < 1.1 && Math.abs(wp.y) < 1.1;
-      obj.el.style.opacity = ok ? vis : 0; obj.el.style.pointerEvents = ok && obj.el.tagName === "A" ? "auto" : "none";
-      obj.el.style.transform = `translate(-50%,-100%) translate(${(wp.x * 0.5 + 0.5) * innerWidth}px, ${(-wp.y * 0.5 + 0.5) * innerHeight}px)`;
+      let o = 0, tr = obj.tr || "";
+      if (shown) {
+        wp.copy(obj.pos).project(camera);
+        if (wp.z < 1 && Math.abs(wp.x) < 1.1 && Math.abs(wp.y) < 1.1) {
+          o = vis; tr = `translate(-50%,-100%) translate(${Math.round((wp.x * 0.5 + 0.5) * innerWidth)}px, ${Math.round((-wp.y * 0.5 + 0.5) * innerHeight)}px)`;
+        }
+      }
+      o = Math.round(o * 20) / 20;
+      if (o !== obj.o) { obj.o = o; obj.el.style.opacity = o; obj.el.style.pointerEvents = o > 0 && obj.el.tagName === "A" ? "auto" : "none"; }
+      if (o > 0 && tr !== obj.tr) { obj.tr = tr; obj.el.style.transform = tr; }
     };
     const showDims = explore || active === 0;
     labels.forEach((l) => proj(l, smooth(0.25, 0.4, build.p), showDims));
     pins.forEach((p) => proj(p, 1, explore));
 
-    adapt(dt);
-    if (fpsEl) { fpsAcc += dt; fpsN++; if (fpsAcc > 0.5) { fpsEl.textContent = Math.round(fpsN / fpsAcc) + " fps · " + pr.toFixed(2) + "x" + (bloom.enabled ? " · bloom" : ""); fpsAcc = fpsN = 0; } }
+    adapt(raw);
+    if (fpsEl) { fpsAcc += dt; fpsN++; if (fpsAcc > 0.5) { fpsEl.textContent = Math.round(fpsN / fpsAcc) + " fps · Q" + level + " · " + pr.toFixed(2) + "x"; fpsAcc = fpsN = 0; } }
     if (!ready) { ready = true; startAt = t + 0.6; html.classList.add("scene-ready"); window.__sceneReady = true; }
     else if (startAt && t >= startAt) { startAt = 0; play(); }
   }
-  window.__scene = { setExplore, play, camera, renderer, scene, controls, keys, build, info: { FLOORS, FH, BW, BD, TOP, LOTW, LOTD } };
-  tick();
+  window.__scene = { quality: () => ({ level, pr: +pr.toFixed(2), bloom: bloom.enabled, shadows: moon.castShadow }), setExplore, play, camera, renderer, scene, controls, keys, build, info: { FLOORS, FH, BW, BD, TOP, LOTW, LOTD } };
+  // compila os shaders em paralelo antes do primeiro quadro (evita travada na abertura)
+  const start = () => { clock.start(); tick(); };
+  const guard = new Promise((r) => setTimeout(r, 5000));
+  Promise.race([renderer.compileAsync ? renderer.compileAsync(scene, camera) : Promise.resolve(), guard]).catch(() => {}).then(start);
 }
 
-if (webglOK()) { try { init(); } catch (e) { console.error(e); html.classList.add("nogl"); } } else html.classList.add("nogl");
+// o texto da página aparece primeiro; o 3D inicia logo depois que tudo carregou
+function boot() { if (webglOK()) { try { init(); } catch (e) { console.error(e); html.classList.add("nogl"); } } else html.classList.add("nogl"); }
+if (document.readyState === "complete") setTimeout(boot, 0); else addEventListener("load", () => setTimeout(boot, 0));

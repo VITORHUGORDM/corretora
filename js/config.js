@@ -9,7 +9,6 @@ window.SITE = {
   creci: "CRECI 00000-J",                // EXEMPLO: troque pelo CRECI real
   whatsapp: "5500000000000",             // DDI + DDD + número, só dígitos
   telefoneExibicao: "(00) 00000-0000",
-  email: "contato@seudominio.com.br",
   endereco: "Rua Exemplo, 123 — Centro",
   cidade: "Sua Cidade — UF",
   instagram: "https://instagram.com/",   // link do perfil

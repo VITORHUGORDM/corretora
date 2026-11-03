@@ -19,7 +19,6 @@
   document.title = S.nome + " — " + S.slogan;
   $$("[data-s]").forEach(function (n) { n.textContent = S[n.getAttribute("data-s")] || ""; });
   $$("[data-wa]").forEach(function (a) { a.href = wa(a.getAttribute("data-wa")); a.target = "_blank"; a.rel = "noopener"; });
-  $$("[data-mail]").forEach(function (a) { a.href = "mailto:" + S.email; });
   $$("[data-insta]").forEach(function (a) { a.href = S.instagram; });
   $("#ano").textContent = new Date().getFullYear();
 

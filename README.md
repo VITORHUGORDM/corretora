@@ -11,8 +11,10 @@ construído à noite, em visão de drone, com contornos de neon estilo planta (l
 - **Câmera guiada pelo scroll** + **Explorar em 3D** com controles de órbita (arrastar, zoom, pinça) e pontos clicáveis.
 - Detalhes vivos: caminhões na estrada, drones, poeira de luz, pulsos no chão, varredura de luz no prédio.
 - **Galeria de fotos de referência**, **depoimentos** de quem comprou apartamento, todos levando ao WhatsApp.
-- **Desempenho:** instanciamento, sombras atualizadas a cada 2 quadros, MSAA + brilho (bloom), e resolução adaptativa
-  (reduz sozinha, e desliga o brilho se necessário, caso caia de 60fps). Adicione `?fps` na URL para ver o contador.
+- **Desempenho:** 5 níveis de qualidade (0 = completo ... 4 = mínimo). Começa no nível certo para o aparelho e **desce sozinho**
+  se a taxa de quadros cair (menos suavização, sem brilho, sem sombras, menor resolução). Limite de pixels renderizados,
+  sombras atualizadas só a cada poucos quadros, sem `backdrop-filter` no CSS e sem leitura de layout por quadro.
+  Use `?fps` na URL para ver o contador e `?q=0` a `?q=4` para forçar um nível.
 - Sem WebGL o site continua funcionando (fundo em degradê). Respeita `prefers-reduced-motion`.
 
 ## Como usar
